@@ -1,0 +1,137 @@
+import os
+import time
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
+
+# Setting up the path for the browser
+web_driver = "C:\\Py_Station\\chromedriver.exe"
+time.sleep(10)
+
+if "chrome" in web_driver:
+    os.environ["webdriver.chrome.driver"] = web_driver
+    browser = webdriver.Chrome(web_driver)
+elif "firefox" in web_driver:
+    os.environ["webdriver.firefox.driver"] = web_driver
+    browser = webdriver.Firefox()
+else:
+    exit(1)
+
+# Enter the twitter URL to open the site
+time.sleep(10)
+browser.get("https://www.twitter.com")
+
+# Setting twitter username a password
+twitterusername = "e3byll@gmail.com"
+twitterpassword = "33Kouam43@!"
+
+# Test 1. Test to successfully login into twitter account
+print "\nTEST 1:  Loging into the twitter application."
+MY_SCREEN_NAME = twitterusername
+MY_PASSWORD = twitterpassword
+
+# Find the login button on the page
+element = browser.find_element_by_css_selector("[class='Button StreamsLogin js-login']")
+
+# Click the login button
+element.click()
+
+browser.maximize_window()
+
+# Identify Username box and Input the username
+elementuser = browser.find_element_by_css_selector("input.email-input")
+# Input the provided username
+elementuser.send_keys(MY_SCREEN_NAME)
+
+# Input the provided password
+elementpwd = browser.find_element_by_css_selector(".LoginForm-password > input")
+elementpwd.send_keys(MY_PASSWORD)
+
+WebDriverWait(browser, 15)
+elementlg = browser.find_element_by_css_selector("input.js-submit")
+if "error" in browser.current_url:
+    TEST_1 = False
+    print "TEST 1: FAIL"
+    exit(1)
+else:
+    # Submit the form
+    elementlg.submit()
+    print "TEST_1 = Pass - You are able to log into twitter."
+
+# TEST 2. Test to see if user can enter tweet.
+print "\nTEST 2: Test to see if user can enter tweet."
+
+# Find the tweet box
+elementTwtterHome = browser.find_element_by_id('tweet-box-home-timeline')
+
+# Enter the tweet message right below here.  Please change the message for every new tweet
+# Modify the number next to Test to have a different tweet meggage.
+elementTwtterHome.send_keys("Hello world - Test2 is here!!!")
+
+
+# TEST 3. Test to see if user can delete tweet.
+# TODO you need to find the tweet id of the new tweet then find the class for the delete button
+
+TEST_3 = False
+# TEST 4.
+browser.find_element_by_xpath("(.//*[@id='tweet-box-home-timeline'])").click()
+print "\n\n\nTEST 4: Test to verify tweet count:"
+
+
+
+#Initial tweet count
+time.sleep(5)
+browser.find_element_by_xpath(".//*[@class='global-nav-inner']").click()
+
+browser.refresh()
+init_tweets = browser.find_element_by_css_selector("[class='ProfileCardStats-statValue']").text
+print "\n Here are the total number of tweets" + "  " + init_tweets
+
+# Click the tweet button
+browser.find_element_by_css_selector("button.tweet-action").click()
+
+# Refresh page
+time.sleep(3)
+browser.refresh()
+
+# Final tweet count
+tweets = browser.find_element_by_css_selector("[class='ProfileCardStats-statValue']").text
+
+if int(init_tweets) + 1 == int(tweets):
+    TEST_2 = True
+    TEST_4 = True
+else:
+    TEST_2 = False
+    TEST_4 = False
+#
+# print tweets.text
+
+# TEST 5. Test to see if the user can search.
+
+print "\nTEST 5: Test to verify that user can search for a tweet"
+
+# Wait for page to reload
+WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[class='search-input']")))
+
+# Find the search box
+element = browser.find_element_by_css_selector("[class='search-input']")
+
+# Enter the user text into the search box
+element.send_keys("Hello world")  # raw_input("\nPlease enter a search term: ")
+
+# Send the key return command
+element.send_keys(Keys.RETURN)
+
+# Wait for the page to load
+# May need to increment time to account for page load times
+try:
+    WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR,
+                                                                    "[class='SearchNavigation-titleText']")))
+    TEST_5 = True
+except TimeoutException:
+    TEST_5 = False
+
+print "\nTest Results: \n"
